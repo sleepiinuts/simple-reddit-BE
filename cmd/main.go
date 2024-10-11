@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/gin-gonic/gin"
 	"github.com/qustavo/dotsql"
-	"github.com/sleepiinuts/simple-reddit-BE/pkg/repositories/articles"
+	articlesAPI "github.com/sleepiinuts/simple-reddit-BE/api/articles"
+	"github.com/sleepiinuts/simple-reddit-BE/middleware"
+	articlesServ "github.com/sleepiinuts/simple-reddit-BE/pkg/repositories/articles"
 )
 
 var dots map[string]*dotsql.DotSql
@@ -22,6 +25,12 @@ func main() {
 
 	prepSqlLoader()
 
-	articlesServ := articles.NewArticlesService(articles.NewOracleArticlesRepos(db, dots["articles"]))
-	fmt.Println(articlesServ.GetAll())
+	articlesServ := articlesServ.NewArticlesService(articlesServ.NewOracleArticlesRepos(db, dots["articles"]))
+	articlesAPI := articlesAPI.NewArticleAPI(articlesServ)
+
+	router := gin.Default()
+	router.Use(middleware.ErrorHandler)
+	router.GET("/articles", articlesAPI.GetAll)
+
+	router.Run("localhost:8080")
 }
