@@ -32,14 +32,18 @@ func (a *ArticleAPI) New(c *gin.Context) {
 	err := c.BindJSON(&article)
 	if err != nil {
 		c.Error(fmt.Errorf("[Article API] New - BindJSON: %w", err))
+		c.Status(http.StatusBadRequest)
+		return
 	}
 
 	err = a.articleServ.New(&article)
 	if err != nil {
 		c.Error(fmt.Errorf("[Article API] New - ArticleServ: %w", err))
+		c.Status(http.StatusInternalServerError)
+		return
 	}
 
-	c.JSON(http.StatusCreated, nil)
+	c.Status(http.StatusCreated)
 }
 
 func (a *ArticleAPI) DeleteById(c *gin.Context) {
@@ -48,14 +52,44 @@ func (a *ArticleAPI) DeleteById(c *gin.Context) {
 	id, err := strconv.Atoi(c.Params.ByName("id"))
 	if err != nil {
 		c.Error(fmt.Errorf("[Article API] DeleteById - bad request: %v", id))
-		c.JSON(http.StatusBadRequest, nil)
+		c.Status(http.StatusBadRequest)
 		return
 	}
 
 	err = a.articleServ.DeleteById(id)
 	if err != nil {
-		c.Error(fmt.Errorf("[Article API] DeleteById - ArticleServ: %v", id))
-		c.JSON(http.StatusBadRequest, nil)
+		c.Error(fmt.Errorf("[Article API] DeleteById - ArticleServ: %w", err))
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusNoContent, nil)
+}
+
+func (a *ArticleAPI) Vote(c *gin.Context) {
+	var (
+		id, vote int
+		err      error
+	)
+
+	id, err = strconv.Atoi(c.Params.ByName("id"))
+	if err != nil {
+		c.Error(fmt.Errorf("[Article API] Vote[id param] - bad request: %v", id))
+		c.Status(http.StatusBadRequest)
+		return
+	}
+
+	err = c.BindJSON(&vote)
+	if err != nil {
+		c.Error(fmt.Errorf("[Article API] Vote[body] - bad request: %w", err))
+		c.Status(http.StatusBadRequest)
+		return
+	}
+
+	err = a.articleServ.Vote(id, vote)
+	if err != nil {
+		c.Error(fmt.Errorf("[Article API] Vote - ArticleServ: %w", err))
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 
