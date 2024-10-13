@@ -19,7 +19,7 @@ func NewArticlesService(repos ArticlesRepos) *ArticlesService {
 func (a *ArticlesService) GetAll() ([]models.Article, error) {
 	rows, err := a.repos.getAll()
 	if err != nil {
-		return nil, fmt.Errorf("articles: %w", err)
+		return nil, fmt.Errorf("articles-getall: %w", err)
 	}
 	defer rows.Close()
 
@@ -31,9 +31,27 @@ func (a *ArticlesService) GetAll() ([]models.Article, error) {
 		err := rows.StructScan(&article)
 
 		if err != nil {
-			return nil, fmt.Errorf("article-scan: %w", err)
+			return nil, fmt.Errorf("article-getall-scan: %w", err)
 		}
 		articles = append(articles, article)
 	}
 	return articles, nil
+}
+
+func (a *ArticlesService) New(art *models.Article) error {
+	_, err := a.repos.new(art)
+	if err != nil {
+		return fmt.Errorf("article-new: %w", err)
+	}
+
+	return nil
+}
+
+func (a *ArticlesService) DeleteById(id int) error {
+	_, err := a.repos.deleteById(id)
+	if err != nil {
+		return fmt.Errorf("article-deleteById: %w", err)
+	}
+
+	return nil
 }
