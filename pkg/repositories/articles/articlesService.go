@@ -55,3 +55,16 @@ func (a *ArticlesService) DeleteById(id int) error {
 
 	return nil
 }
+
+func (a *ArticlesService) Vote(id, vote int) error {
+	resp, err := a.repos.vote(id, vote)
+	if err != nil {
+		return fmt.Errorf("article-vote: %w", err)
+	}
+
+	if nrow, _ := resp.RowsAffected(); nrow != 1 {
+		return fmt.Errorf("article-vote: unexpected row(s) affected: %d", nrow)
+	}
+
+	return nil
+}

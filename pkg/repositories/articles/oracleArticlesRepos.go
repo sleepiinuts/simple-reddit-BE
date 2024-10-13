@@ -47,4 +47,14 @@ func (o *OracleArticlesRepos) deleteById(id int) (sql.Result, error) {
 	return o.db.Exec(stmt, id)
 }
 
+// vote implements ArticlesRepos.
+func (o *OracleArticlesRepos) vote(id int, vote int) (sql.Result, error) {
+	stmt, err := o.dot.Raw("Vote")
+	if err != nil {
+		return nil, fmt.Errorf("[Oracle-vote]: %w", err)
+	}
+
+	return o.db.Exec(stmt, vote, id)
+}
+
 var _ ArticlesRepos = &OracleArticlesRepos{}

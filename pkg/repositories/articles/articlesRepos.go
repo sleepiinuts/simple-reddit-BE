@@ -11,4 +11,5 @@ type ArticlesRepos interface {
 	getAll() (*sqlx.Rows, error)
 	new(a *models.Article) (sql.Result, error)
 	deleteById(id int) (sql.Result, error)
+	vote(id, vote int) (sql.Result, error)
 }
