@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
+	"log/slog"
+	"os"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -29,12 +31,16 @@ func main() {
 	articlesServ := articlesServ.NewArticlesService(articlesServ.NewOracleArticlesRepos(db, dots["articles"]))
 	articlesAPI := articlesAPI.NewArticleAPI(articlesServ)
 
+	// create logger
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+
 	router := gin.Default()
-	router.Use(middleware.ErrorHandler)
+	router.Use(middleware.ErrorHandler(logger))
 	router.Use(cors.Default())
 	router.GET("/articles", articlesAPI.GetAll)
 	router.POST("/articles", articlesAPI.New)
 	router.DELETE("/articles/:id", articlesAPI.DeleteById)
+	router.PATCH("/articles/:id", articlesAPI.Vote)
 
 	router.Run("localhost:8080")
 }
