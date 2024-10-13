@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/qustavo/dotsql"
 	articlesAPI "github.com/sleepiinuts/simple-reddit-BE/api/articles"
@@ -30,7 +31,10 @@ func main() {
 
 	router := gin.Default()
 	router.Use(middleware.ErrorHandler)
+	router.Use(cors.Default())
 	router.GET("/articles", articlesAPI.GetAll)
+	router.POST("/articles", articlesAPI.New)
+	router.DELETE("/articles/:id", articlesAPI.DeleteById)
 
 	router.Run("localhost:8080")
 }
